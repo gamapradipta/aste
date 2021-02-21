@@ -100,7 +100,7 @@ def convert_json(tokens, tags):
     for relation_tag in relation_tags:
         triple.append(handle_triple(tokens, term_tags, relation_tag))
     
-    valid = check_sentence_pack(term_dict)
+    valid = check_sentence_pack(term_dict) and len(triple) != 0
 
     return {
         "sentence" : sentence,
