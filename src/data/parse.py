@@ -38,12 +38,12 @@ def get_all_term(tags, term):
     for tag in tags:
         if term in tag:
             if tag != prev:
-                term_bio.append("b")
+                term_bio.append("B")
                 prev = tag
             else:
-                term_bio.append("i")
+                term_bio.append("I")
         else:
-            term_bio.append("o")
+            term_bio.append("O")
     return term_bio
 
 def handle_relation(relation):
@@ -106,7 +106,7 @@ def convert_json(tokens, tags):
         "sentence" : sentence,
         "aspect_tags" : all_aspect_tags,
         "sent_tags" : all_sent_tags,
-        "triple" : triple,
+        "triples" : triple,
         "valid" : valid
     }
     
@@ -172,9 +172,9 @@ def statistic(filename, data,args):
     for sentence_pack in data:
         n_aspect_term += calculate_n_term(sentence_pack['aspect_tags'])
         n_sent_term += calculate_n_term(sentence_pack['sent_tags'])
-        n_triple += len(sentence_pack['triple'])
+        n_triple += len(sentence_pack['triples'])
         sentence_length.append(len(sentence_pack['sentence'].split(' ')))
-        for triple in sentence_pack['triple']:
+        for triple in sentence_pack['triples']:
             if triple['polarity'] not in triple_polarity:
                 triple_polarity[triple['polarity']] = 0
             triple_polarity[triple['polarity']]+=1
