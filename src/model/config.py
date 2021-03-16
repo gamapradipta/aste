@@ -2,7 +2,7 @@ import argparse
 
 class Config(object):
     def __init__(self):
-        self.max_len = 18
+        self.max_len = 100
         self.exclude_padding = True
         self.fine_tuned = True
         self.bert_version = 'indobenchmark/indobert-base-p1'

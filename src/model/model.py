@@ -3,6 +3,7 @@ import numpy as np
 from tensorflow.keras.callbacks import Callback
 from sklearn.metrics import f1_score
 from transformers import TFBertModel, BertTokenizer
+from loss import sparse_categorical_crossentropy_with_mask
 
 def into_tile(tensors, max_len):
   tensors = tf.repeat(tf.expand_dims(tensors, axis=2), max_len, axis=2)
@@ -68,7 +69,7 @@ class ASTE():
     # logits = feat
     self.model = tf.keras.Model(inputs=[input_ids, input_masks], outputs=[logits],)
     optimizer = tf.keras.optimizers.Adam(lr=self.args.learning_rate)
-    self.model.compile(optimizer=optimizer, loss="categorical_cross_entropy", metrics=[""])
+    self.model.compile(optimizer=optimizer, loss=sparse_categorical_crossentropy_with_mask)
   
   def train(self, X_train, y_train, X_val=None, y_val=None, epochs=10, verbose=2, batch_size=64):
     
@@ -76,6 +77,6 @@ class ASTE():
         X_train,
         y_train,
         epochs=epochs,
-        verbose=2,
-        batch_size=64
+        verbose=verbose,
+        batch_size=batch_size,
     )

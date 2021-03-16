@@ -1,35 +1,41 @@
 import tensorflow as tf
 from constant import *
 import numpy as np
+import json
 
 class BaseSentence(object):
     def __init__(self, sentence_pack:dict, tokenizer, args):
+        '''
+            BaseSentence Class
+        '''
         self.args = args
         self.sentence = sentence_pack["sentence"]
         self.tokens = self.sentence.strip().split()
         self.sentence_length = len(self.tokens)
         self.token_range = []
 
-        self.inputs_ids, _, self.attention_mask = tokenizer(
+        self.input_ids, _, self.attention_mask = tokenizer(
             self.sentence,
             padding='max_length',
-            max_length=self.args.max_len,
-            return_tensors="tf"
+            max_length=self.args.max_len
         ).values()
-
-        self.length = self.inputs_ids.shape[-1]
+        # self.input_ids = tf.Variable(self.input_ids)
+        # self.attention_mask = tf.Variable(self.attention_mask)
+        self.length = len(tf.boolean_mask(self.input_ids, self.attention_mask))
 
         token_begin = 1
         for idx, token in enumerate(self.tokens):
             token_end = token_begin + len(tokenizer.encode(token, add_special_tokens=False))
             self.token_range.append([token_begin, token_end-1])
             token_begin = token_end
+        # print(self.length, self.token_range[-1][-1]+2)
+        # print(self.__dict__)
         assert self.length == self.token_range[-1][-1]+2
 
-class SentencePack(BaseSentence):
+class SentenceExample(BaseSentence):
     def __init__(self, sentence_pack, tokenizer, args):
         super().__init__(sentence_pack, tokenizer, args)
-
+        
         self.gen_label(sentence_pack)
 
     def get_spans(self, tags, tags_dict=BIO_TAGS):
@@ -82,7 +88,6 @@ class SentencePack(BaseSentence):
         else:
             raise ValueError('Unknown val parameter', val)
         # print(spans,"\n", self.tags)
-
     
     def handle_triple(self, triple):
         aspect = triple['aspect_tags']
@@ -108,6 +113,33 @@ class SentencePack(BaseSentence):
                 self.tags[i,i:self.length-1] = 0
         for triple in (sentence_pack['triples']):
             self.handle_triple(triple)
-        self.tags = tf.Variable(self.tags)
-    
-    
+        # self.tags = tf.Variable(self.tags)
+
+def create_sentence_example(filename, tokenizer, args):
+    sentence_examples = []
+    with open(filename) as f:
+        raw_data = json.load(f)
+        for item in raw_data:
+            sentence_examples.append(SentenceExample(item, tokenizer, args))
+    return sentence_examples
+
+def create_inputs_targets(sentence_examples):
+    dataset_dict = {
+        "input_ids": [],
+        "attention_mask" : [],
+        "tags" : [],
+    }
+
+    for item in sentence_examples:
+        for key in dataset_dict:
+            dataset_dict[key].append(getattr(item, key))
+
+    for key in dataset_dict:
+        dataset_dict[key] = np.array(dataset_dict[key])
+
+    x = [
+        dataset_dict["input_ids"],
+        dataset_dict["attention_mask"],
+    ]
+    y = [dataset_dict["tags"]]
+    return x,y
