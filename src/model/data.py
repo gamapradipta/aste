@@ -31,9 +31,9 @@ class BaseSentence(object):
         # print(self.length, self.token_ranges[-1][-1]+2)
         # print(self.__dict__)
         assert self.length == self.token_ranges[-1][-1]+2
-    
+    # TEMPORARY FIX
     def get_X(self):
-        return self.input_ids, self.attention_mask
+        return create_inputs_targets(self)[0]
 
 class SentenceExample(BaseSentence):
     def __init__(self, sentence_pack, tokenizer, args):
