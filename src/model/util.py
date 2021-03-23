@@ -1,22 +1,21 @@
 import constant as c
 
 class Decoder(object):
-    def get_spans(self, tags, token_ranges, tag_type):
-        spans = []
-        begin = -1
-
-        for i, (l, r) in enumerate(token_ranges):
-            if tags[l][l] == c.IGNORE_INDEX:
-                continue
-            elif tags[l][l] == tag_type:
-                if begin == -1:
-                    begin = i
-            elif tags[l][l] != tag_type:
-                if begin != -1:
-                    spans.append([begin, i - 1])
-                    begin = -1
-        if begin != -1:
-            spans.append([begin, i - 1])
+	def get_spans(self, tags, token_ranges, tag_type):
+		spans = []
+		begin = -1
+		for i, (l, r) in enumerate(token_ranges):
+			if tags[l][l] == c.IGNORE_INDEX:
+				continue
+			elif tags[l][l] == tag_type:
+				if begin == -1:
+					begin = i
+			elif tags[l][l] != tag_type:
+				if begin != -1:
+					spans.append([begin, i - 1])
+					begin = -1
+		if begin != -1:
+			spans.append([begin, i - 1])
 		return spans
 
 	def find_triplets(self, tags, token_ranges, aspect_spans, sentiment_spans):
