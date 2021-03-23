@@ -33,7 +33,7 @@ class BaseSentence(object):
         assert self.length == self.token_ranges[-1][-1]+2
     # TEMPORARY FIX
     def get_X(self):
-        return create_inputs_targets(self)[0]
+        return [np.array([self.input_ids]),np.array([self.attention_mask])]
 
 class SentenceExample(BaseSentence):
     def __init__(self, sentence_pack, tokenizer, args):
