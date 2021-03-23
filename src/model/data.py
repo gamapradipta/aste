@@ -12,7 +12,7 @@ class BaseSentence(object):
         self.sentence = sentence_pack["sentence"]
         self.tokens = self.sentence.strip().split()
         self.sentence_length = len(self.tokens)
-        self.token_range = []
+        self.token_ranges = []
 
         self.input_ids, _, self.attention_mask = tokenizer(
             self.sentence,
@@ -26,11 +26,11 @@ class BaseSentence(object):
         token_begin = 1
         for idx, token in enumerate(self.tokens):
             token_end = token_begin + len(tokenizer.encode(token, add_special_tokens=False))
-            self.token_range.append([token_begin, token_end-1])
+            self.token_ranges.append([token_begin, token_end-1])
             token_begin = token_end
-        # print(self.length, self.token_range[-1][-1]+2)
+        # print(self.length, self.token_ranges[-1][-1]+2)
         # print(self.__dict__)
-        assert self.length == self.token_range[-1][-1]+2
+        assert self.length == self.token_ranges[-1][-1]+2
 
 class SentenceExample(BaseSentence):
     def __init__(self, sentence_pack, tokenizer, args):
@@ -61,13 +61,13 @@ class SentenceExample(BaseSentence):
         # assert self.tags[1][2] != -1
         if val == 'aspect' or val == 'sentiment':
             for l, r in spans:
-                begin = self.token_range[l][0]
-                end = self.token_range[r][-1]
+                begin = self.token_ranges[l][0]
+                end = self.token_ranges[r][-1]
                 for i in range(begin, end+1):
                     for j in range(i, end+1):
                         self.tags[i][j] = LABELS[val]
                 for i in range(l, r+1):
-                    tl, tr = self.token_range[i]
+                    tl, tr = self.token_ranges[i]
                     '''handle sub words'''
                     self.tags[tl+1:tr+1, :] = IGNORE_INDEX
                     self.tags[:, tl+1:tr+1] = IGNORE_INDEX
@@ -78,8 +78,8 @@ class SentenceExample(BaseSentence):
                 for s_begin, s_end in s_span:
                     for i in range(a_begin, a_end+1):
                         for j in range(s_begin, s_end+1):
-                            al, ar = self.token_range[i]
-                            sl, sr = self.token_range[j]
+                            al, ar = self.token_ranges[i]
+                            sl, sr = self.token_ranges[j]
                             self.tags[al:ar+1, sl:sr+1] = IGNORE_INDEX
                             if i > j:
                                 self.tags[sl][al] = LABELS[val]
