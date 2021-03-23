@@ -9,7 +9,7 @@ class BaseSentence(object):
             BaseSentence Class
         '''
         self.args = args
-        self.sentence = sentence_pack["sentence"]
+        self.sentence = sentence_pack["sentence"].lower()
         self.tokens = self.sentence.strip().split()
         self.sentence_length = len(self.tokens)
         self.token_ranges = []
@@ -114,6 +114,13 @@ class SentenceExample(BaseSentence):
             self.tags[:,:] = IGNORE_INDEX
             for i in range(1, self.length-1):
                 self.tags[i,i:self.length-1] = 0
+        
+        aspect_span = self.get_spans(sentence_pack["aspect_tags"])
+        sentiment_span = self.get_spans(sentence_pack["sent_tags"])
+
+        self.set_label(aspect_span, "aspect")
+        self.set_label(sentiment_span, "sentiment")
+
         for triple in (sentence_pack['triples']):
             self.handle_triple(triple)
         # self.tags = tf.Variable(self.tags)
