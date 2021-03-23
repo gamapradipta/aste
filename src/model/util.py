@@ -39,7 +39,13 @@ class Decoder(object):
 				triplets.append([al, ar, pl, pr, polarity])
 		return triplets	
 
-	def parse_out(self, tags, token_ranges):
+	def format_spans_as_string(self, spans):
+		return [self.format_span_as_string(span) for span in spans]
+
+	def format_span_as_string(self, span):
+		return '-'.join(map(str, span))
+
+	def parse_out(self, tags, token_ranges, format_span_as_string=False):
 		aspect_spans = self.get_spans(
 			tags,
 			token_ranges,
@@ -56,6 +62,38 @@ class Decoder(object):
 			aspect_spans,
 			sentiment_spans
 		)
+		if format_span_as_string:
+			return (
+				self.format_spans_as_string(aspect_spans),
+				self.format_spans_as_string(sentiment_spans),
+				self.format_spans_as_string(triples)
+			)
 		return triples, aspect_spans, sentiment_spans
-		
-		
+	
+	def get_token_from_span(self, tokens, span):
+		assert type(span) == list
+		return tokens[span]
+
+	def get_token_from_spans(self, tokens, spans):
+		return [self.get_token_from_span(span) for span in spans]
+
+	def generate_triple(self, tokens, triple):
+		assert len(triple) == 3
+		aspect_span, sentiment_span, polarity_label = triple
+		aspect_term = self.get_token_from_span(tokens, aspect_span)
+		sentiment_term = self.get_token_from_span(tokens, aspect_span)
+		polarity = c.LABELS.keys()[c.LABELS.values().index(polarity_label)]
+		return aspect_term, sentiment_term, polarity
+
+	def generate_triples(self, tokens, triples):
+		return [
+			self.generate_triple_from_span(tokens, triple) for triple in triples
+		]
+	
+	def generate_triples_from_tags(self, tokens, tags, token_ranges):
+		triples, aspect_spans, sentiment_span = self.parse_out(tags, token_ranges, format_span_as_string=False)
+		return (
+			self.generate_triples_from_spans(tokens, triples),
+			self.get_token_from_spans(tokens, aspect_spans),
+			self.get_token_from_spans(tokens, sentiment_span),
+		)
