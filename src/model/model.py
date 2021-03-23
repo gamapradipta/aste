@@ -85,7 +85,7 @@ class ASTE():
 
   def predict(self, X, logits=False):
     assert self.model != None
-    pred = self.model.predict(X)
+    pred = self.model(X)
     if logits:
       return pred
     return pred.argmax(axis=-1)
