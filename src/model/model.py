@@ -4,6 +4,8 @@ from tensorflow.keras.callbacks import Callback
 from sklearn.metrics import f1_score
 from transformers import TFBertModel, BertTokenizer
 from loss import sparse_categorical_crossentropy_with_mask
+from util import Decoder
+from data import BaseSentence
 
 def into_tile(tensors, max_len):
   tensors = tf.repeat(tf.expand_dims(tensors, axis=2), max_len, axis=2)
@@ -52,6 +54,7 @@ class ASTE():
   def __init__(self, args):
     self.model = None
     self.args = args
+    self.decoder = Decoder()
 
   def init_model(self):
     # BERT encoder
@@ -70,9 +73,8 @@ class ASTE():
     self.model = tf.keras.Model(inputs=[input_ids, input_masks], outputs=[logits],)
     optimizer = tf.keras.optimizers.Adam(lr=self.args.learning_rate)
     self.model.compile(optimizer=optimizer, loss=sparse_categorical_crossentropy_with_mask)
-  
-  def train(self, X_train, y_train, X_val=None, y_val=None, epochs=10, verbose=2, batch_size=64):
-    
+
+  def train(self, X_train, y_train, X_val=None, y_val=None, epochs=10, verbose=2, batch_size=64): 
     self.model.fit(
         X_train,
         y_train,
@@ -80,3 +82,54 @@ class ASTE():
         verbose=verbose,
         batch_size=batch_size,
     )
+
+  def predict(self, X, logits=False):
+    assert self.model != None
+    pred = self.model.predict(X)
+    if logits:
+      return pred
+    return pred.argmax(axis=-1)
+  
+  def predict_one(self, sentence: BaseSentence, token_ranges, triple_only=True):
+    out_tag = self.predict(sentence.get_X())
+    triple, aspect, sentiment = self.decoder.generate_triples_from_tags(sentence.tokens,out_tag, sentence.token_ranges)
+    if triple_only:
+      return triple
+    return triple, aspect, sentiment
+
+  def count_correct(self, true, pred):
+    assert type(true) == set and type(pred) == set
+
+  def score(self, correct_num, count_true, count_pred):
+    precision = correct_num / count_pred if count_pred > 0 else 0
+    recall = correct_num / count_true if count_true > 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+    return precision, recall, f1
+
+  def evaluate(self, X, y_true, token_ranges, eval_triple_only=False):
+    y_pred = self.predict(X, logits=False)
+
+    # correct_num_triple, correct_num_aspect, correct_num_sentiment = 0,0,0
+    # count_true_triple, count_true_aspcet, count_true_sentiment = 0,0,0
+    # count_pred_triple, count_pred_aspcet, count_pred_sentiment = 0,0,0
+    #[Triple, Aspect, Sentiment]
+    eval_list = ["Triple Extraction", "Aspect Term Extraction", "Sentiment Term Extraction"]
+    correct_num = [0] * 3
+    count_true = [0] * 3
+    count_pred = [0] * 3
+    
+    for i in range(len(X)):
+      # Triple, aspect_spans, sentiment_spans
+      true_i = map(set, self.decoder.parse_out(y_true[i], token_ranges, format_span_as_string=True))
+      pred_i = map(set, self.decoder.parse_out(y_true[i], token_ranges, format_span_as_string=True))
+
+      for j in range(len(true_i)):
+        correct_num[j] = correct_num[j] + self.count_correct(true_i[j], pred_i[j])
+        count_true[j] = count_true[j] + len(true_i[j])
+        count_pred[j] = count_pred[j] + len(pred_i[j])
+    
+    for i, name in enumerate(eval_list):
+      precision, recall, f1 = self.score(correct_num[i], count_true[i], count_pred[i])
+      print("Precision For {} \t: {}".format(name, precision))
+      print("Recall For {} \t: {}".format(name, recall))
+      print("F1-Score For {} \t: {}".format(name, f1))
