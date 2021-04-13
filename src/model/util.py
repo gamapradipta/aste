@@ -74,7 +74,7 @@ class Decoder(object):
 		return tokens[span]
 
 	def get_token_from_spans(self, tokens, spans):
-		return [self.get_token_from_span(span) for span in spans]
+		return [self.get_token_from_span(tokens, span) for span in spans]
 
 	def generate_triple(self, tokens, triple):
 		assert len(triple) == 3
