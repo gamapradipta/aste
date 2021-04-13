@@ -35,7 +35,7 @@ class Decoder(object):
 				if sum(tag_num[3:]) == 0:
 					continue
 				polarity = 3 + tag_num[3:].index(max(tag_num[3:]))
-				triplets.append([(al, ar), (sl, sr), polarity])
+				triplets.append([[al, ar], [sl, sr], polarity])
 		return triplets	
 
 	def format_spans_as_string(self, spans):
