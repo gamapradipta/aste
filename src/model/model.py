@@ -133,3 +133,10 @@ class ASTE():
       print("Precision For {} \t: {}".format(name, precision))
       print("Recall For {} \t: {}".format(name, recall))
       print("F1-Score For {} \t: {}".format(name, f1))
+  
+  def save_model(self, file):
+    self.model.save_weights(filename, save_format='tf')
+
+  def load_model(self, file):
+    self.init_model()
+    self.model.save_weights(filename)
