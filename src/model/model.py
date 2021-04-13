@@ -134,9 +134,9 @@ class ASTE():
       print("Recall For {} \t: {}".format(name, recall))
       print("F1-Score For {} \t: {}".format(name, f1))
   
-  def save_model(self, file):
+  def save_model(self, filename):
     self.model.save_weights(filename, save_format='tf')
 
-  def load_model(self, file):
+  def load_model(self, filename):
     self.init_model()
     self.model.save_weights(filename)

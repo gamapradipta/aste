@@ -145,7 +145,7 @@ def create_inputs_targets(sentence_examples):
             dataset_dict[key].append(getattr(item, key))
 
     for key in dataset_dict:
-        dataset_dict[key] = np.array(dataset_dict[key])
+        dataset_dict[key] = np.array(dataset_dict[key], dtype=np.int32)
 
     x = [
         dataset_dict["input_ids"],
