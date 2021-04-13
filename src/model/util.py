@@ -35,7 +35,7 @@ class Decoder(object):
 				if sum(tag_num[3:]) == 0:
 					continue
 				polarity = 3 + tag_num[3:].index(max(tag_num[3:]))
-				triplets.append([al, ar, sl, sr, polarity])
+				triplets.append([(al, ar), (sl, sr), polarity])
 		return triplets	
 
 	def format_spans_as_string(self, spans):
@@ -63,9 +63,9 @@ class Decoder(object):
 		)
 		if format_span_as_string:
 			return (
+				self.format_spans_as_string(triples),
 				self.format_spans_as_string(aspect_spans),
-				self.format_spans_as_string(sentiment_spans),
-				self.format_spans_as_string(triples)
+				self.format_spans_as_string(sentiment_spans)
 			)
 		return triples, aspect_spans, sentiment_spans
 	
@@ -90,9 +90,9 @@ class Decoder(object):
 		]
 	
 	def generate_triples_from_tags(self, tokens, tags, token_ranges):
-		triples, aspect_spans, sentiment_span = self.parse_out(tags, token_ranges, format_span_as_string=False)
+		triples, aspect_spans, sentiment_spans = self.parse_out(tags, token_ranges, format_span_as_string=False)
 		return (
 			self.generate_triples(tokens, triples),
 			self.get_token_from_spans(tokens, aspect_spans),
-			self.get_token_from_spans(tokens, sentiment_span),
+			self.get_token_from_spans(tokens, sentiment_spans),
 		)
