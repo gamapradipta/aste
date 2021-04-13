@@ -162,7 +162,7 @@ def statistic(filename, data,args):
     n_sentence_pack = len(data)
 
     def calculate_n_term(tags):
-        return sum(1 for tag in tags.split(' ') if tag.endswith('b'))
+        return sum(1 for tag in tags.split(' ') if tag.endswith('B'))
     
     sentence_length = []
 
