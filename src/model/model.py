@@ -88,7 +88,7 @@ class ASTE():
     pred = self.model(X)
     if logits:
       return pred
-    return pred.argmax(axis=-1)
+    return np.argmax(pred, axis=-1)
   
   def predict_one(self, sentence: BaseSentence, token_ranges, triple_only=True):
     out_tag = self.predict(sentence.get_X())
