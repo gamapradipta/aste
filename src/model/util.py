@@ -92,7 +92,7 @@ class Decoder(object):
 	def generate_triples_from_tags(self, tokens, tags, token_ranges):
 		triples, aspect_spans, sentiment_span = self.parse_out(tags, token_ranges, format_span_as_string=False)
 		return (
-			self.generate_triples_from_spans(tokens, triples),
+			self.generate_triples(tokens, triples),
 			self.get_token_from_spans(tokens, aspect_spans),
 			self.get_token_from_spans(tokens, sentiment_span),
 		)

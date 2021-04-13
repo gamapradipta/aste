@@ -91,7 +91,7 @@ class ASTE():
     return np.argmax(pred, axis=-1)
   
   def predict_one(self, sentence: BaseSentence, token_ranges, triple_only=True):
-    out_tag = self.predict(sentence.get_X())
+    out_tag = self.predict(sentence.get_X())[0]
     triple, aspect, sentiment = self.decoder.generate_triples_from_tags(sentence.tokens,out_tag, sentence.token_ranges)
     if triple_only:
       return triple
