@@ -71,7 +71,7 @@ class Decoder(object):
 	
 	def get_token_from_span(self, tokens, span):
 		assert type(span) == list
-		return tokens[span]
+		return tokens[span[0]:span[1]+1]
 
 	def get_token_from_spans(self, tokens, spans):
 		return [self.get_token_from_span(tokens, span) for span in spans]
