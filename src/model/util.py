@@ -80,7 +80,7 @@ class Decoder(object):
 		assert len(triple) == 3
 		aspect_span, sentiment_span, polarity_label = triple
 		aspect_term = self.get_token_from_span(tokens, aspect_span)
-		sentiment_term = self.get_token_from_span(tokens, aspect_span)
+		sentiment_term = self.get_token_from_span(tokens, sentiment_span)
 		polarity = list(c.LABELS.keys())[list(c.LABELS.values()).index(polarity_label)]
 		return aspect_term, sentiment_term, polarity
 
