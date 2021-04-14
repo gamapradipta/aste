@@ -133,7 +133,7 @@ def create_sentence_example(filename, tokenizer, args):
             sentence_examples.append(SentenceExample(item, tokenizer, args))
     return sentence_examples
 
-def create_inputs_targets(sentence_examples, token_ranges=False):
+def create_inputs_targets(sentence_examples, include_token_ranges=False):
     dataset_dict = {
         "input_ids": [],
         "attention_mask" : [],
@@ -146,7 +146,7 @@ def create_inputs_targets(sentence_examples, token_ranges=False):
             dataset_dict[key].append(getattr(item, key))
 
     for key in dataset_dict:
-        dataset_dict[key] = np.array(dataset_dict[key], dtype=np.int32)
+        dataset_dict[key] = np.array(dataset_dict[key])
 
     x = [
         dataset_dict["input_ids"],
@@ -155,6 +155,6 @@ def create_inputs_targets(sentence_examples, token_ranges=False):
     y = [dataset_dict["tags"]]
 
     token_ranges = [dataset_dict["token_ranges"]]
-    if token_ranges:
+    if include_token_ranges:
         return x,y,token_ranges
     return x,y
