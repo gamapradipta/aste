@@ -40,6 +40,7 @@ class SentenceExample(BaseSentence):
         super().__init__(sentence_pack, tokenizer, args)
         
         self.gen_label(sentence_pack)
+        # print('Success')
 
     def get_spans(self, tags, tags_dict=BIO_TAGS):
         tags = tags.strip().split()
@@ -99,7 +100,6 @@ class SentenceExample(BaseSentence):
 
         aspect_span = self.get_spans(aspect)
         sentiment_span = self.get_spans(sentiment)
-
         # set tag for aspect
         self.set_label(aspect_span, "aspect")
 
@@ -118,11 +118,17 @@ class SentenceExample(BaseSentence):
         aspect_span = self.get_spans(sentence_pack["aspect_tags"])
         sentiment_span = self.get_spans(sentence_pack["sent_tags"])
 
-        self.set_label(aspect_span, "aspect")
-        self.set_label(sentiment_span, "sentiment")
+        if aspect_span != []:
+            self.set_label(aspect_span, "aspect")
+        # print('Aspect : Done')
+        if sentiment_span != []:
+            self.set_label(sentiment_span, "sentiment")
+        # print('Sentiment : Done')
 
+        n_triples = len(sentence_pack['triples'])
         for triple in (sentence_pack['triples']):
             self.handle_triple(triple)
+        # print('Pair : Done')
         # self.tags = tf.Variable(self.tags)
 
 def create_sentence_example(filename, tokenizer, args):
