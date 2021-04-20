@@ -82,9 +82,15 @@ def convert_json(tokens, tags):
 
     # Handle Triple
     term_dict = {term_tag : False for term_tag in term_tags if term_tag != "_"}
-
+    # print(term_dict)
     def handle_triple(tokens, term_tags, relation_tag):
-        polarity, sent_num, aspect_num = handle_relation(relation_tag)
+        polarity, term_num_1, term_num_2 = handle_relation(relation_tag)
+        # Handle switched term num (Each term have unique number)
+        if f"SENTIMENT[{term_num_2}]" in term_dict:
+            sent_num, aspect_num = term_num_2, term_num_1
+        else:
+            sent_num, aspect_num = term_num_1, term_num_2
+        
         sent_term = f"SENTIMENT[{sent_num}]"
         aspect_term = f"ASPECT[{aspect_num}]"
         term_dict[aspect_term] = True
@@ -99,7 +105,7 @@ def convert_json(tokens, tags):
     
     for relation_tag in relation_tags:
         triple.append(handle_triple(tokens, term_tags, relation_tag))
-    
+    # print(term_dict)
     valid = check_sentence_pack(term_dict) and len(triple) != 0
 
     return {
