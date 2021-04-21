@@ -51,13 +51,11 @@ class Decoder(object):
 			token_ranges,
 			c.LABELS["aspect"]
 		)
-		print(aspect_spans)
 		sentiment_spans = self.get_spans(
 			tags,
 			token_ranges,
 			c.LABELS["sentiment"]
 		)
-		print(sentiment_spans)
 
 		triples = self.find_triplets(
 			tags, 
