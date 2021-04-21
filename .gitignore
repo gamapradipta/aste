@@ -136,3 +136,4 @@ data/interim/*
 data/processed/*
 figures/*
 src/notebook/*test.*
+saved_model/
