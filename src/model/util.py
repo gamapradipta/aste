@@ -4,6 +4,7 @@ class Decoder(object):
 	def get_spans(self, tags, token_ranges, tag_type):
 		spans = []
 		begin = -1
+		length = len(token_ranges)
 		for i, (l, r) in enumerate(token_ranges):
 			if tags[l][l] == c.IGNORE_INDEX:
 				continue
@@ -15,7 +16,7 @@ class Decoder(object):
 					spans.append([begin, i - 1])
 					begin = -1
 		if begin != -1:
-			spans.append([begin, i - 1])
+			spans.append([begin, length - 1])
 		return spans
 
 	def find_triplets(self, tags, token_ranges, aspect_spans, sentiment_spans):
@@ -50,11 +51,14 @@ class Decoder(object):
 			token_ranges,
 			c.LABELS["aspect"]
 		)
+		print(aspect_spans)
 		sentiment_spans = self.get_spans(
 			tags,
 			token_ranges,
 			c.LABELS["sentiment"]
 		)
+		print(sentiment_spans)
+
 		triples = self.find_triplets(
 			tags, 
 			token_ranges,
