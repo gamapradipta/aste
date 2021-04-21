@@ -99,6 +99,7 @@ class ASTE():
 
   def count_correct(self, true, pred):
     assert type(true) == set and type(pred) == set
+    return len(true & pred)
 
   def score(self, correct_num, count_true, count_pred):
     precision = correct_num / count_pred if count_pred > 0 else 0
@@ -118,16 +119,23 @@ class ASTE():
     correct_num = [0] * 3
     count_true = [0] * 3
     count_pred = [0] * 3
-    
-    for i in range(len(X)):
+    for i in range(len(token_ranges)):
       # Triple, aspect_spans, sentiment_spans
-      true_i = map(set, self.decoder.parse_out(y_true[i], token_ranges[i], format_span_as_string=True))
-      pred_i = map(set, self.decoder.parse_out(y_pred[i], token_ranges[i], format_span_as_string=True))
-
+      parse_true = self.decoder.parse_out(y_true[i], token_ranges[i], format_span_as_string=True)
+      parse_pred = self.decoder.parse_out(y_pred[i], token_ranges[i], format_span_as_string=True)
+      # print("TRUE ", parse_true)
+      # print("PRED ", parse_pred)
+      true_i = list(map(set, parse_true))
+      pred_i = list(map(set, parse_pred))
+      # print("TRUE ", true_i)
+      # print("PRED ", pred_i)
       for j in range(len(true_i)):
         correct_num[j] = correct_num[j] + self.count_correct(true_i[j], pred_i[j])
         count_true[j] = count_true[j] + len(true_i[j])
         count_pred[j] = count_pred[j] + len(pred_i[j])
+        print(correct_num)
+        print(count_true)
+        print(count_pred)
     
     for i, name in enumerate(eval_list):
       precision, recall, f1 = self.score(correct_num[i], count_true[i], count_pred[i])
