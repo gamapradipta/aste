@@ -83,9 +83,9 @@ class ASTE():
         batch_size=batch_size,
     )
 
-  def predict(self, X, logits=False):
+  def predict(self, X, logits=False, batch_size=12):
     assert self.model != None
-    pred = self.model(X)
+    pred = self.model.predict(X, batch_size=batch_size)
     if logits:
       return pred
     return np.argmax(pred, axis=-1)
@@ -106,13 +106,14 @@ class ASTE():
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
     return precision, recall, f1
 
-  def evaluate(self, X, y_true, token_ranges, eval_triple_only=False):
-    y_pred = self.predict(X, logits=False)
+  def evaluate(self, X, y_true, token_ranges, eval_triple_only=False, batch_size=12):
+    # y_pred = self.predict(X, logits=False)
 
     # correct_num_triple, correct_num_aspect, correct_num_sentiment = 0,0,0
     # count_true_triple, count_true_aspcet, count_true_sentiment = 0,0,0
     # count_pred_triple, count_pred_aspcet, count_pred_sentiment = 0,0,0
     #[Triple, Aspect, Sentiment]
+    y_pred = self.predict(X, logits=False, batch_size=batch_size)
     eval_list = ["Triple Extraction", "Aspect Term Extraction", "Sentiment Term Extraction"]
     correct_num = [0] * 3
     count_true = [0] * 3
@@ -120,8 +121,8 @@ class ASTE():
     
     for i in range(len(X)):
       # Triple, aspect_spans, sentiment_spans
-      true_i = map(set, self.decoder.parse_out(y_true[i], token_ranges, format_span_as_string=True))
-      pred_i = map(set, self.decoder.parse_out(y_true[i], token_ranges, format_span_as_string=True))
+      true_i = map(set, self.decoder.parse_out(y_true[i], token_ranges[i], format_span_as_string=True))
+      pred_i = map(set, self.decoder.parse_out(y_pred[i], token_ranges[i], format_span_as_string=True))
 
       for j in range(len(true_i)):
         correct_num[j] = correct_num[j] + self.count_correct(true_i[j], pred_i[j])
@@ -139,4 +140,4 @@ class ASTE():
 
   def load_model(self, filename):
     self.init_model()
-    self.model.save_weights(filename)
+    self.model.load_weights(filename)
