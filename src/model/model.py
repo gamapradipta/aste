@@ -76,13 +76,24 @@ class ASTE():
     self.model.compile(optimizer=optimizer, loss=sparse_categorical_crossentropy_with_mask, metrics=[sparse_categorical_accuracy_with_mask])
 
   def train(self, X_train, y_train, X_val=None, y_val=None, epochs=10, verbose=2, batch_size=64): 
-    self.model.fit(
+    if X_val!= None and y_val != None:
+      self.model.fit(
         X_train,
         y_train,
         epochs=epochs,
         verbose=verbose,
+        validation_data=(X_val, y_val),
+        validation_batch_size=batch_size,
         batch_size=batch_size,
     )
+    else:
+      self.model.fit(
+          X_train,
+          y_train,
+          epochs=epochs,
+          verbose=verbose,
+          batch_size=batch_size,
+      )
 
   def predict(self, X, logits=False, batch_size=12):
     assert self.model != None
